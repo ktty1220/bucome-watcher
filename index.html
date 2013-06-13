@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="description" content="はてなブックマークの複数のエントリーのコメントを同時進行でウォッチできるサービスです。ソースはGitHubで公開しています(MITライセンス)。">
+    <meta name="keywords" content="はてなブックマーク,はてブ,コメント">
+    <title>ブコメwatcher - はてなブックマーク コメント追っかけサービス</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.1.0/pure-min.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/jquery.powertip.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!--[if lt IE 9]>
+      <script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+  </head>
+  <body>
+    <div id="error" class="hidden">
+      <p class="message"></p>
+      <small class="at"></small>
+      <a href="javascript:void(0)" class="close">×</a>
+    </div>
+    <script type="text/template" id="view-entry">
+      <div class="list-item category-<%= category %>">
+        <div class="bookmarkcount">
+          <div class="count"><%= bookmarkcount %></div>
+          <small>users</small>
+        </div>
+        <h3>
+          <a href="<%= link %>" title="<%= description %>" target="_blank">
+            <%= title %>
+          </a>
+        </h3>
+        <div class="info">
+          <span class="label subject"><%= subject %></span>
+          <span class="date"><%= date %></span>
+          <img class="favicon" src="<%= favicon %>">
+          <span class="host"><%= host %></span>
+        </div>
+        <% if (view === 'entry') { %>
+        <button type="button" class="add-watch pure-button pure-button-small pure-button-primary">ウォッチリストに追加</button>
+        <% } else { %>
+        <span class="new-comment"></span>
+        <button type="button" class="remove pure-button pure-button-small pure-button-error">ウォッチ解除</button>
+        <button type="button" class="comment pure-button pure-button-small pure-button-secondary">コメント一覧</button>
+        <% } %>
+      </div>
+    </script>
+    <script type="text/template" id="view-error">
+      <div class="error">
+        <h4>エラーが発生しました</h4>
+        <p>
+          <%= message %>
+        </p>
+      </div>
+    </script>
+    <div id="layout" class="pure-g">
+      <div id="entry-list" class="list-box pure-u-1-3">
+        <div class="loading"></div>
+        <div class="list-header">
+          <a class="logo" href="./">
+            <img src="img/logo.png" alt="ロゴ">
+          </a>
+        </div>
+        <div class="list-control">
+          <ul class="clearfix">
+            <li>
+              <a href="#all" class="current">総合</a>
+            </li>
+            <li>
+              <a href="#social">世の中</a>
+            </li>
+            <li>
+              <a href="#economics">政治と経済</a>
+            </li>
+            <li>
+              <a href="#life">暮らし</a>
+            </li>
+            <li>
+              <a href="#knowledge">学び</a>
+            </li>
+            <li>
+              <a href="#it">テクノロジー</a>
+            </li>
+            <li>
+              <a href="#entertainment">エンタメ</a>
+            </li>
+            <li>
+              <a href="#game">アニメとゲーム</a>
+            </li>
+            <li>
+              <a href="#fun">おもしろ</a>
+            </li>
+          </ul>
+        </div>
+        <div class="list-content"></div>
+      </div>
+      <div id="watch-list" class="list-box pure-u-1-3">
+        <div class="loading"></div>
+        <div class="list-header">
+          <h2>
+            <i class="icon-eye-open">ウォッチリスト</i>
+          </h2>
+        </div>
+        <div class="list-control">
+          <button type="button" class="add-url pure-button pure-button-success">
+            <i class="icon-globe">URLを直接指定</i>
+          </button>
+          <button type="button" class="clear pure-button pure-button-error">
+            <i class="icon-remove">ウォッチリスト消去</i>
+          </button>
+        </div>
+        <div class="list-content"></div>
+      </div>
+      <div id="comment-list" class="list-box pure-u-1-3">
+        <div class="loading"></div>
+        <div class="list-header">
+          <h2>
+            <i class="icon-comment">コメントリスト</i>
+          </h2>
+        </div>
+        <div class="list-control">
+          <a class="entry" href="javascript:void(0)" target="_blank"></a>
+        </div>
+        <div class="list-content"></div>
+        <script type="text/template" id="view-comment">
+          <div class="list-item <%= itemClass %>">
+            <a href="http://profile.hatena.ne.jp/<%= model.user %>/" target="_blank">
+              <img src="http://cdn1.www.st-hatena.com/users/<% userIndex %>/<%= model.user %>/profile_l.gif" alt="<%= model.user %>">
+            </a>
+            <small class="timestamp"><%= relTimestamp %></small>
+            <div class="username">
+              <a href="http://b.hatena.ne.jp/<%= model.user %>/<%= date %>#bookmark-<%= eid %>" target="_blank">
+                <%= model.user %>
+              </a>
+            </div>
+            <p>
+              <%= model.comment %>
+            </p>
+          </div>
+        </script>
+      </div>
+      <div id="footer" class="pure-u-1">
+        <div id="social-buttons"></div>
+        <div class="footer-inner">
+          <h1>
+            <a href="http://b.hatena.ne.jp/" target="_blank">はてなブックマーク</a>の複数のエントリーのコメントを同時進行でウォッチできるサービス</h1>
+          <span>Copyright &copy; 2013</span>
+          <a href="http://ktty1220.ap01.aws.af.cm/" target="_blank">ktty1220</a>
+          <span>All rights reserved.</span>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.0/underscore.string.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script>var __slice = Array.prototype.slice;var __hasProp = Object.prototype.hasOwnProperty;var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };var __extends = function(child, parent) {  for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }  function ctor() { this.constructor = child; }  ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype;  return child; };var __indexOf = Array.prototype.indexOf || function(item) {  for (var i = 0, l = this.length; i < l; i++) {    if (this[i] === item) return i;  } return -1; };(function () {
+      google.load('feeds', '1');
+      return _.mixin(_.string.exports());
+    }).call(this);</script>
+  </body>
+</html>
