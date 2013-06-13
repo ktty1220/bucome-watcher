@@ -6,6 +6,8 @@
 
 [Backbone.js](http://backbonejs.org/)と[CoffeeScript](http://coffeescript.org/)をメインに構成されており、サーバーサイドでの処理は一切ありません。したがって、当プロジェクトをcloneもしくはダウンロードしてindex.htmlを開くだけでも使用できるようになっています。
 
+(index.phpと.htaccessはherokuで静的ファイルをデプロイするのに必要なダミーファイルです)
+
 ## ブコメwatcherについて
 
 3つのリストから構成されているサービスです。
