@@ -1,10 +1,15 @@
 ###!
-* jQuery POP'n SocialButton v0.1.5 - custom
+* jQuery POP'n SocialButton v0.1.7
 *
 * http://github.com/ktty1220/jquery.popn-socialbutton
 *
-* 参考: http://q.hatena.ne.jp/1320898356
-* 参考: http://stackoverflow.com/questions/5699270/how-to-get-share-counts-using-graph-api
+* 参考サイト
+*
+* - http://q.hatena.ne.jp/1320898356
+* - http://stackoverflow.com/questions/5699270/how-to-get-share-counts-using-graph-api
+* - http://stackoverflow.com/questions/8853342/how-to-get-google-1-count-for-current-page-in-php
+* - http://hail2u.net/blog/coding/jquery-query-yql-plugin.html
+* - http://hail2u.net/blog/coding/jquery-query-yql-plugin-supports-open-data-tables.html
 *
 * Copyright (c) 2013 ktty1220 ktty1220@gmail.com
 * Licensed under the MIT license
@@ -17,7 +22,7 @@ do (jQuery) ->
 
   $.fn.popnSocialButton = (services, options = {}) ->
     exOptions = $.extend {},
-      url: location.href
+      url: document.location.href
       text: $('title').html()
       imgDir: './img'
       buttonSpace: 24
@@ -30,14 +35,20 @@ do (jQuery) ->
         textHover: '#ffffff'
         bgHover: '#ff6666'
         border: '#ffffff'
-      countSize: 10
+      countSize: 11
     , options
     exOptions.urlOrg = exOptions.url
     exOptions.url = encodeURIComponent exOptions.url
     exOptions.text = encodeURIComponent exOptions.text
 
+    # ボタン画像のサイズ
     iconSize = 44
+    # ボタンの浮き上がり距離
     popnUp = 4
+    # YQLで偽装するUA
+    dummyUA = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 5.1)'
+    # 現在のページのURLスキーム
+    scheme = if /https/.test document.location.protocol then 'https' else 'http'
 
     servicesProp =
       twitter:
@@ -51,7 +62,7 @@ do (jQuery) ->
       facebook:
         img: 'facebook_2x.png'
         alt: 'Facebook Share Button'
-        shareUrl: "http://www.facebook.com/sharer.php?u=#{exOptions.url}&t=#{exOptions.text}"
+        shareUrl: "https://www.facebook.com/sharer.php?u=#{exOptions.url}&t=#{exOptions.text}"
         countUrl: "https://graph.facebook.com/#{exOptions.url}"
         jsonpFunc: (json, cb) ->
           ###
@@ -62,7 +73,7 @@ do (jQuery) ->
           return cb(json.shares) if json.shares?
           graphLikes = json.likes ? 0
           $.ajax
-            url: "https://graph.facebook.com/fql?q=#{encodeURIComponent "SELECT total_count FROM link_stat WHERE url='#{exOptions.url}'"}"
+            url: "https://graph.facebook.com/fql?q=#{encodeURIComponent "SELECT total_count FROM link_stat WHERE url='#{exOptions.urlOrg}'"}"
             dataType: 'jsonp'
           .done (json) ->
             fqlTotal = json.data[0]?.total_count ? 0
@@ -76,8 +87,25 @@ do (jQuery) ->
         countUrl: "http://api.b.st-hatena.com/entry.count?url=#{exOptions.url}"
         jsonpFunc: (json, cb) -> cb(json ? 0)
 
+      gplus:
+        img: 'google+1_2x.png'
+        alt: 'Google Plus Share Button'
+        shareUrl: "https://plusone.google.com/share?url=#{exOptions.url}"
+        ###
+        * - Google+1ボタンはシェア数に関するjsonpを提供していない(jsonすら提供していない)ので+1ボタンのhtmlを取得してその中から件数を取得する
+        * - クロスドメインによる取得になるのでYQLを使用する
+        * - ただしgoogleのサーバーに設置してあるrobots.txtはYQL(というかYahooのロボット全般？)のUAを拒否するのでOpen Data Tableのdata.headerプラグインを使用する
+        ###
+        countUrl: "#{scheme}://query.yahooapis.com/v1/public/yql?q=#{encodeURIComponent "SELECT content FROM data.headers WHERE url='https://plusone.google.com/_/+1/fastbutton?hl=ja&url=#{exOptions.urlOrg}' and ua='#{dummyUA}'"}&env=http://datatables.org/alltables.env"
+        jsonpFunc: (json, cb) ->
+          count = 0
+          if json.query?.count > 0
+            m = json.results[0].match /window\.__SSR = {c: ([\d]+)/
+            count = m[1] if m?
+          cb count
+
       github:
-        img: 'github_alt@2x.png'
+        img: 'github_alt_2x.png'
         alt: 'GitHub Repository'
         shareUrl: "https://github.com/#{exOptions.githubRepo}"
         commentUrl: "https://github.com/#{exOptions.githubRepo}/stargazers"
@@ -150,6 +178,7 @@ do (jQuery) ->
     $(@).height iconSize + popnUp
 
     $(@).find('.popn-socialbutton-share').click () ->
+      return true if $(@).parent().hasClass 'github'
       top = (screen.height / 2) - 180
       left = (screen.width / 2) - 240
       window.open @href, '', "width=520, height=400, top=#{top}, left=#{left}"

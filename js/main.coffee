@@ -15,7 +15,7 @@ $ () ->
 
   ### ソーシャルボタン ###
   unless __DEBUG__
-    $('#social-buttons').popnSocialButton [ 'twitter', 'facebook', 'hatebu', 'github' ], githubRepo: 'ktty1220/bucome-watcher'
+    $('#social-buttons').popnSocialButton [ 'twitter', 'facebook', 'hatebu', 'gplus', 'github' ], githubRepo: 'ktty1220/bucome-watcher'
 
   ### 各リストの高さを自動的にブラウザの高さに合わせる ###
   $listHeader = $('.list-header').get(0)

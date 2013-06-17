@@ -72,6 +72,10 @@ jsファイルはサードパーティのライブラリで、coffeeファイル
 
     Underscore.jsを拡張するライブラリです。各種日時を相対表示させるのに使用しています。
 
+* [jquery.popn-socialbutton.coffee](https://github.com/ktty1220/jquery.popn-socialbutton)
+
+    フッターに表示させるソーシャルボタンを表示するのに使用しています。
+
 ### ブコメwatcherのソース
 
 * base-view.coffee
@@ -95,12 +99,6 @@ jsファイルはサードパーティのライブラリで、coffeeファイル
 * main.coffee
 
     DOMロード後に実行する処理です。各種リストのインスタンス化もここで行われます。
-
-* jquery.popn-socialbutton-custom.coffee
-
-    ブコメwatcherとは直接関係ありませんが、拙作の[jQuery POP'n SocialButton](https://github.com/ktty1220/jquery.popn-socialbutton)をGitHubに対応させたものです。
-
-    フッターに表示させるソーシャルボタンを表示するのに使用しています。
 
 ### その他CDNからロードしているライブラリ
 
@@ -136,6 +134,10 @@ jsファイルはサードパーティのライブラリで、coffeeファイル
 なお、現段階はスマートフォンに適した表示には対応していません。マウスホバー時に実行されるイベントも多い為、タッチ型のデバイスでは快適には利用できないと思います。ご了承ください。
 
 ## Changelog
+
+### 0.1.1 (2013-06-17)
+
+* jQuery POP'n SocialButtonを最新版に差し替え
 
 ### 0.1.0 (2013-06-14)
 
