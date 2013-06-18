@@ -139,8 +139,10 @@ i {
       color: @header-footer-color;
       height: 42px;
       .logo {
+        text-decoration: none;
         img {
           margin-top: 2px;
+          vertical-align: bottom;
         }
       }
       h2 {
@@ -173,6 +175,9 @@ i {
         @count-width: 40px;
         &.selected {
           background: #ffd;
+        }
+        &.filtered {
+          .hidden;
         }
         .bookmarkcount {
           font-weight: bold;
@@ -214,6 +219,7 @@ i {
           right: 5px;
           font-weight: bold;
         }
+        .add-filter,
         .remove {
           left: 5px;
         }
@@ -267,6 +273,12 @@ i {
   }
 
   #entry-list {
+    .list-header {
+      .reset-filter {
+        .hidden;
+        margin: 0 0 2px 4px;
+      }
+    }
     .list-control {
       ul {
         margin: 0;
@@ -312,6 +324,11 @@ i {
         line-height: 1.3;
         position: absolute;
         bottom: 15px;
+      }
+    }
+    .error {
+      .retry {
+        .hidden;
       }
     }
     .list-item {

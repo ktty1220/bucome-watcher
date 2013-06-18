@@ -5,7 +5,7 @@
     <meta name="description" content="はてなブックマークの複数のエントリーのコメントを同時進行でウォッチできるサービスです。ソースはGitHubで公開しています(MITライセンス)。">
     <meta name="keywords" content="はてなブックマーク,はてブ,コメント">
     <title>ブコメwatcher - はてなブックマーク コメント追っかけサービス</title>
-    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.1.0/pure-min.css">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.0/pure-min.css">
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/jquery.powertip.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -39,6 +39,7 @@
           <span class="host"><%= host %></span>
         </div>
         <% if (view === 'entry') { %>
+        <button type="button" class="add-filter pure-button pure-button-small pure-button-warning">表示しない</button>
         <button type="button" class="add-watch pure-button pure-button-small pure-button-primary">ウォッチリストに追加</button>
         <% } else { %>
         <span class="new-comment"></span>
@@ -65,6 +66,9 @@
           <a class="logo" href="./">
             <img src="img/logo.png" alt="ロゴ">
           </a>
+          <button type="button" class="reset-filter pure-button pure-button-small">
+            <i class="icon-trash">フィルター解除</i>
+          </button>
         </div>
         <div class="list-control">
           <ul class="clearfix">

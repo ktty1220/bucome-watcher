@@ -26,6 +26,8 @@ class EntryList extends Backbone.Collection
 ### ビュー ###
 class EntryView extends BaseView
   el: '#entry-list'
+  saveKey: 'entryFilter'
+  filter: []
 
   ### ビュー要素操作イベント ###
   events:
@@ -35,10 +37,15 @@ class EntryView extends BaseView
     'click .error .retry': 'retry'
     'click h3 a': 'openEntry'
     'click .add-watch': 'addWatch'
+    'click .add-filter': 'addFilter'
+    'click .reset-filter': 'resetFilter'
 
   ### 初期処理 ###
   initialize: (options) =>
     super options
+
+    # フィルター読み込み
+    @loadFilter()
 
     # カテゴリ名 => クラス名変換テーブル
     @categoryList =
@@ -63,6 +70,20 @@ class EntryView extends BaseView
       @update()
     , 600 * 1000
     @update()
+
+  ### ローカルストレージからフィルター復元 ###
+  loadFilter: () =>
+    return unless localStorage?
+    saveInfo = localStorage.getItem @saveKey
+    @filter = JSON.parse(saveInfo ? '[]')
+    @$el.find('.reset-filter').show() if @filter.length > 0
+
+  ### ローカルストレージにフィルター保存 ###
+  saveFilter: (link) =>
+    @filter.push link
+    return unless localStorage?
+    localStorage.setItem @saveKey, JSON.stringify @filter
+    @$el.find('.reset-filter').fadeIn 'fast'
 
   ### ビューを更新 ###
   update: (category = location.hash) =>
@@ -134,6 +155,8 @@ class EntryView extends BaseView
   render: (model) =>
     newItem = $($.parseHTML @tmpl(model.attributes))
     newItem.data 'cid', model.cid
+    # 非表示フィルター反映
+    newItem.addClass 'filtered' if $.inArray(model.get('link'), @filter) isnt -1
     # ウォッチリストに登録してあるエントリーは表示しない
     newItem.hide() if watchView.link2elem(model.get('link')).length > 0
     newItem.appendTo @$listContent
@@ -170,6 +193,20 @@ class EntryView extends BaseView
     entryItem = @cid2elem model.cid
     # ホットエントリーからは隠してウォッチリストに追加
     entryItem.fadeOut 'fast', () => watchView.addWatch model
+
+  ### エントリー非表示フィルターに追加 ###
+  addFilter: (e) =>
+    model = @elem2model e
+    entryItem = @cid2elem model.cid
+    entryItem.fadeOut 'fast', =>
+      entryItem.addClass 'filtered'
+      @saveFilter model.get('link')
+
+  ### フィルター解除 ###
+  resetFilter: (e) =>
+    @$listContent.find('.filtered').fadeIn 'fast', -> $(@).removeClass 'filtered'
+    localStorage.removeItem @saveKey if localStorage?
+    $(e.target).fadeOut 'fast'
 
   ### 隠したエントリーを復活 ###
   showEntry: (link) =>

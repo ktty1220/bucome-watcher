@@ -23,7 +23,7 @@ class WatchItem extends EntryItem
       dataType: 'jsonp'
     #.fail (data) =>
     .done (data) =>
-      commentBookmarks = (bm for bm in data.bookmarks when bm.comment.length > 0).length
+      commentBookmarks = (bm for bm in data.bookmarks? when bm.comment.length > 0).length
       newCount = commentBookmarks - @get('past')
       @set { newComment: newCount, bookmarkcount: data.count }
 
@@ -144,7 +144,7 @@ class WatchView extends BaseView
   clear: (e) =>
     @$el.find('.list-item').each (idx, elem) =>
       @removeItem target: elem
-    localStorage.clear()
+    localStorage.remoteItem @saveKey if localStorage?
 
   ### ウォッチ解除 ###
   removeItem: (e) =>
