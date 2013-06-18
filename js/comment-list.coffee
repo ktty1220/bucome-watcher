@@ -23,7 +23,7 @@ class CommentList extends Backbone.Collection
     @entryTitle = data.title
     @entryUrl = data.entry_url
     # コメントがあるブックマークのみ取得
-    (bm for bm in data.bookmarks? when bm.comment.length > 0).reverse()
+    (bm for bm in (data.bookmarks ? []) when bm.comment.length > 0).reverse()
 
 ### ビュー ###
 class CommentView extends BaseView
