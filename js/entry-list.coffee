@@ -32,6 +32,7 @@ class EntryView extends BaseView
     'mouseenter .list-item': 'mouseIn'
     'mouseleave .list-item': 'mouseOut'
     'click .list-control a': 'changeCategory'
+    'click .error .retry': 'retry'
     'click h3 a': 'openEntry'
     'click .add-watch': 'addWatch'
 
@@ -147,6 +148,9 @@ class EntryView extends BaseView
     # エラーになった結果がgoogle側でキャッシュされてしまうので次回取得時はキャッシュを無効にする
     @noCache = true
 
+  ### 再試行 ###
+  retry: (e) => @update()
+  
   ### カテゴリ変更 ###
   changeCategory: (e) =>
     return false if $(e.target).hasClass 'current'
