@@ -144,7 +144,7 @@ class WatchView extends BaseView
   clear: (e) =>
     @$el.find('.list-item').each (idx, elem) =>
       @removeItem target: elem
-    localStorage.remoteItem @saveKey if localStorage?
+    localStorage.removeItem @saveKey if localStorage?
 
   ### ウォッチ解除 ###
   removeItem: (e) =>
